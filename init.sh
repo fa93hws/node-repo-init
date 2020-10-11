@@ -1,6 +1,6 @@
 set -e
 
-function main() {
+function install_node_modules() {
   local dev_deps=(
     # typescript
     typescript
@@ -67,7 +67,24 @@ function main() {
     @material-ui/icons
   )
 
+  npm init
   npm install --save-dev "${dev_deps[@]}"
+  npm install --save "${prod_deps[@]}"
 }
 
-main
+function amend_package_json() {
+  local queries=(
+    '.scripts.format = "prettier --check **/*"'
+    '.scripts.lint = "eslint \"{conf,src}/**/*.ts{,x}\""'
+    '.scripts."lint:ts" = "tsc --noEmit --project ./tsconfig.check.json"'
+    '.scripts.test = "jest --ci"'
+  )
+  query=$(printf "| %s" "${queries[@]}")
+  query=${query:2}
+  local new_file
+  new_file=$(jq "${query}" package.json)
+  echo "${new_file}" > package.json
+}
+
+install_node_modules
+amend_package_json
