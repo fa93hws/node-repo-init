@@ -75,7 +75,7 @@ function install_node_modules() {
 function amend_package_json() {
   local queries=(
     '.scripts.format = "prettier --check **/*"'
-    '.scripts.lint = "eslint \"{conf,src}/**/*.ts{,x}\""'
+    '.scripts.lint = "eslint \"{config,src}/**/*.ts{,x}\""'
     '.scripts."lint:ts" = "tsc --noEmit --project ./tsconfig.check.json"'
     '.scripts.test = "jest --ci"'
   )
@@ -86,5 +86,12 @@ function amend_package_json() {
   echo "${new_file}" > package.json
 }
 
+function run_lint() {
+  npm run lint
+  npm run lint:ts
+  npm run format
+}
+
 install_node_modules
 amend_package_json
+run_lint
